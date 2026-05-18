@@ -25,6 +25,11 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
+/** Minimum allowed learning rate to prevent vanishing updates. */
+const MIN_LEARNING_RATE = 0.0001;
+/** Maximum allowed learning rate to prevent divergence. */
+const MAX_LEARNING_RATE = 1.0;
+
 /**
  * Mutate an agent config, returning a new config and the diff (delta).
  * The mutation is deterministic given the seed.
@@ -43,8 +48,8 @@ export function mutateConfig(
 
   const learningRate = clamp(
     config.learningRate + (rng() - 0.5) * 2 * scale,
-    0.0001,
-    1.0,
+    MIN_LEARNING_RATE,
+    MAX_LEARNING_RATE,
   );
   const explorationRate = clamp(
     config.explorationRate + (rng() - 0.5) * 2 * scale,

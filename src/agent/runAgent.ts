@@ -148,9 +148,18 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRunResult
   } catch (err) {
     const reason = err instanceof Error ? err.message : String(err);
     const isTimeout = reason === "EXECUTION_TIMEOUT";
-    appendEvent(execution.executionId, isTimeout ? "EXECUTION_TIMEOUT" : "EXECUTION_FAILED", {
-      ...(isTimeout ? { timeoutMs: config.executionTimeoutMs } : { error: reason, durationMs: 0 }),
-    });
+
+    if (isTimeout) {
+      appendEvent(execution.executionId, "EXECUTION_TIMEOUT", {
+        timeoutMs: config.executionTimeoutMs,
+      });
+    } else {
+      appendEvent(execution.executionId, "EXECUTION_FAILED", {
+        error: reason,
+        durationMs: 0,
+      });
+    }
+
     rollback(execution.executionId, candidateVariant.variantId, reason);
     return {
       executionId: execution.executionId,
